@@ -1,84 +1,250 @@
-import '../index.css';
+import { useState, useRef } from 'react';
+import './SettingsManagement.css';
 
 export default function SettingsManagement() {
+  // --- State Variables ---
+  const [fullName, setFullName] = useState("Admin User");
+  const [email, setEmail] = useState("admin@omakcomputers.lk");
+  const [avatar, setAvatar] = useState(null); // Stores base64 or URL string of image
+  const [avatarFile, setAvatarFile] = useState(null); // Stores raw file object for backend
+  
+  // Store Settings State
+  const [storeName, setStoreName] = useState("Omak Computers");
+  const [contactEmail, setContactEmail] = useState("support@omakcomputers.lk");
+  const [currency, setCurrency] = useState("LKR");
+  const [taxRate, setTaxRate] = useState("15");
+
+  // Preferences State
+  const [orderNotifications, setOrderNotifications] = useState(true);
+  const [lowStockAlerts, setLowStockAlerts] = useState(true);
+  const [twoFactor, setTwoFactor] = useState(false);
+
+  // Staged password update tracking
+  const [newPassword, setNewPassword] = useState("");
+
+  // Loading indicator for save state
+  const [isSaving, setIsSaving] = useState(false);
+
+  // Reference hook to tap the hidden file input
+  const fileInputRef = useRef(null);
+
+  // --- Handlers ---
+  
+  // 1. Change Avatar logic
+  const handleAvatarButtonClick = () => {
+    fileInputRef.current.click();
+  };
+
+  const handleAvatarChange = (e) => {
+    const file = e.target.files[0];
+    if (file) {
+      setAvatarFile(file); // Saved to push to database if needed
+      const reader = new FileReader();
+      reader.onload = (event) => {
+        setAvatar(event.target.result); // Base64 display preview
+      };
+      reader.readAsDataURL(file);
+    }
+  };
+
+  // 2. Change Password logic
+  const handlePasswordChange = () => {
+    const pwd = prompt("Enter your new password:");
+    if (pwd) {
+      if (pwd.length < 6) {
+        alert("Password must be at least 6 characters long.");
+        return;
+      }
+      setNewPassword(pwd);
+      alert("Password updated locally! Click 'Save Changes' to permanently apply.");
+    }
+  };
+
+  // 3. Save Changes global handler
+  const handleSaveChanges = async () => {
+    setIsSaving(true);
+
+    const payload = {
+      fullName,
+      email,
+      storeName,
+      contactEmail,
+      currency,
+      taxRate,
+      preferences: {
+        orderNotifications,
+        lowStockAlerts,
+        twoFactor
+      },
+      newPassword: newPassword || null,
+      avatarFile: avatarFile || null // Use this to construct FormData for backend API uploads
+    };
+
+    try {
+      console.log("Saving changes to server...", payload);
+      
+      // Artificial server delay simulation
+      await new Promise((resolve) => setTimeout(resolve, 1000));
+      
+      alert("All settings updated successfully!");
+      setNewPassword(""); // Reset staged password container
+    } catch (error) {
+      console.error("Failed to save data:", error);
+      alert("An error occurred while saving your changes.");
+    } finally {
+      setIsSaving(false);
+    }
+  };
+
   return (
     <div className="main-content">
       <div className="header">
         <h1>Settings</h1>
-        <button className="btn btn-primary">
-          Save Changes
+        <button 
+          className="btn btn-primary" 
+          onClick={handleSaveChanges}
+          disabled={isSaving}
+        >
+          {isSaving ? "Saving..." : "Save Changes"}
         </button>
       </div>
       
-      <div className="card-grid" style={{ gridTemplateColumns: '1fr', gap: '2rem' }}>
-        <div className="card" style={{ padding: '2rem' }}>
-          <h2 style={{ marginBottom: '1.5rem', color: 'var(--text-primary)' }}>User Profile</h2>
-          <div style={{ display: 'flex', gap: '2rem', alignItems: 'flex-start' }}>
-            <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '1rem' }}>
-              <div style={{ width: '100px', height: '100px', borderRadius: '50%', background: 'var(--accent-purple)', display: 'flex', alignItems: 'center', justifyContent: 'center', color: 'white', fontSize: '2.5rem', fontWeight: 'bold' }}>
-                A
+      <div className="settings-grid">
+        <div className="settings-card">
+          <h2>User Profile</h2>
+          <div className="profile-section">
+            <div className="avatar-container">
+              {/* Hidden file selector tag */}
+              <input 
+                type="file" 
+                ref={fileInputRef} 
+                onChange={handleAvatarChange} 
+                accept="image/*" 
+                style={{ display: 'none' }} 
+              />
+              <div 
+                className="avatar" 
+                style={{ 
+                  backgroundImage: avatar ? `url(${avatar})` : 'none',
+                  backgroundSize: 'cover',
+                  backgroundPosition: 'center'
+                }}
+              >
+                {!avatar && "A"}
               </div>
-              <button className="btn btn-secondary text-sm">Change Avatar</button>
+              <button 
+                className="btn btn-secondary text-sm" 
+                onClick={handleAvatarButtonClick}
+              >
+                Change Avatar
+              </button>
             </div>
-            <div style={{ flex: 1, display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1.5rem' }}>
-              <div>
-                <label style={{ display: 'block', marginBottom: '0.5rem', color: 'var(--text-secondary)' }}>Full Name</label>
-                <input type="text" defaultValue="Admin User" style={{ width: '100%', padding: '0.75rem', borderRadius: '4px', border: '1px solid var(--border-color)', background: 'var(--bg-secondary)', color: 'var(--text-primary)' }} />
+            <div className="form-grid">
+              <div className="form-group">
+                <label>Full Name</label>
+                <input 
+                  type="text" 
+                  value={fullName} 
+                  onChange={(e) => setFullName(e.target.value)} 
+                  className="form-input" 
+                />
               </div>
-              <div>
-                <label style={{ display: 'block', marginBottom: '0.5rem', color: 'var(--text-secondary)' }}>Role</label>
-                <input type="text" defaultValue="Administrator" disabled style={{ width: '100%', padding: '0.75rem', borderRadius: '4px', border: '1px solid var(--border-color)', background: 'var(--bg-secondary)', color: 'var(--text-secondary)', opacity: 0.7 }} />
+              <div className="form-group">
+                <label>Role</label>
+                <input type="text" defaultValue="Administrator" disabled className="form-input" />
               </div>
-              <div>
-                <label style={{ display: 'block', marginBottom: '0.5rem', color: 'var(--text-secondary)' }}>Email</label>
-                <input type="email" defaultValue="admin@omakcomputers.lk" style={{ width: '100%', padding: '0.75rem', borderRadius: '4px', border: '1px solid var(--border-color)', background: 'var(--bg-secondary)', color: 'var(--text-primary)' }} />
+              <div className="form-group">
+                <label>Email</label>
+                <input 
+                  type="email" 
+                  value={email} 
+                  onChange={(e) => setEmail(e.target.value)} 
+                  className="form-input" 
+                />
               </div>
-              <div>
-                <label style={{ display: 'block', marginBottom: '0.5rem', color: 'var(--text-secondary)' }}>Password</label>
-                <button className="btn btn-secondary" style={{ width: '100%' }}>Change Password</button>
+              <div className="form-group">
+                <label>Password</label>
+                <button 
+                  className="btn btn-secondary" 
+                  style={{ width: '100%' }}
+                  onClick={handlePasswordChange}
+                >
+                  {newPassword ? "Password Staged ✓" : "Change Password"}
+                </button>
               </div>
             </div>
           </div>
         </div>
 
-        <div className="card" style={{ padding: '2rem' }}>
-          <h2 style={{ marginBottom: '1.5rem', color: 'var(--text-primary)' }}>Store Settings</h2>
-          <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1.5rem' }}>
-            <div>
-              <label style={{ display: 'block', marginBottom: '0.5rem', color: 'var(--text-secondary)' }}>Store Name</label>
-              <input type="text" defaultValue="Omak Computers" style={{ width: '100%', padding: '0.75rem', borderRadius: '4px', border: '1px solid var(--border-color)', background: 'var(--bg-secondary)', color: 'var(--text-primary)' }} />
+        <div className="settings-card">
+          <h2>Store Settings</h2>
+          <div className="form-grid">
+            <div className="form-group">
+              <label>Store Name</label>
+              <input 
+                type="text" 
+                value={storeName} 
+                onChange={(e) => setStoreName(e.target.value)} 
+                className="form-input" 
+              />
             </div>
-            <div>
-              <label style={{ display: 'block', marginBottom: '0.5rem', color: 'var(--text-secondary)' }}>Contact Email</label>
-              <input type="email" defaultValue="support@omakcomputers.lk" style={{ width: '100%', padding: '0.75rem', borderRadius: '4px', border: '1px solid var(--border-color)', background: 'var(--bg-secondary)', color: 'var(--text-primary)' }} />
+            <div className="form-group">
+              <label>Contact Email</label>
+              <input 
+                type="email" 
+                value={contactEmail} 
+                onChange={(e) => setContactEmail(e.target.value)} 
+                className="form-input" 
+              />
             </div>
-            <div>
-              <label style={{ display: 'block', marginBottom: '0.5rem', color: 'var(--text-secondary)' }}>Currency</label>
-              <select style={{ width: '100%', padding: '0.75rem', borderRadius: '4px', border: '1px solid var(--border-color)', background: 'var(--bg-secondary)', color: 'var(--text-primary)' }}>
+            <div className="form-group">
+              <label>Currency</label>
+              <select 
+                className="form-input" 
+                value={currency} 
+                onChange={(e) => setCurrency(e.target.value)}
+              >
                 <option value="LKR">LKR - Sri Lankan Rupee</option>
                 <option value="USD">USD - US Dollar</option>
               </select>
             </div>
-            <div>
-              <label style={{ display: 'block', marginBottom: '0.5rem', color: 'var(--text-secondary)' }}>Tax Rate (%)</label>
-              <input type="number" defaultValue="15" style={{ width: '100%', padding: '0.75rem', borderRadius: '4px', border: '1px solid var(--border-color)', background: 'var(--bg-secondary)', color: 'var(--text-primary)' }} />
+            <div className="form-group">
+              <label>Tax Rate (%)</label>
+              <input 
+                type="number" 
+                value={taxRate} 
+                onChange={(e) => setTaxRate(e.target.value)} 
+                className="form-input" 
+              />
             </div>
           </div>
         </div>
 
-        <div className="card" style={{ padding: '2rem' }}>
-          <h2 style={{ marginBottom: '1.5rem', color: 'var(--text-primary)' }}>User Preferences</h2>
-          <div style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
-            <label style={{ display: 'flex', alignItems: 'center', gap: '0.75rem', color: 'var(--text-secondary)' }}>
-              <input type="checkbox" defaultChecked />
+        <div className="settings-card">
+          <h2>User Preferences</h2>
+          <div className="preferences-list">
+            <label className="checkbox-label">
+              <input 
+                type="checkbox" 
+                checked={orderNotifications} 
+                onChange={(e) => setOrderNotifications(e.target.checked)} 
+              />
               Enable Email Notifications for New Orders
             </label>
-            <label style={{ display: 'flex', alignItems: 'center', gap: '0.75rem', color: 'var(--text-secondary)' }}>
-              <input type="checkbox" defaultChecked />
+            <label className="checkbox-label">
+              <input 
+                type="checkbox" 
+                checked={lowStockAlerts} 
+                onChange={(e) => setLowStockAlerts(e.target.checked)} 
+              />
               Show Low Stock Alerts on Dashboard
             </label>
-            <label style={{ display: 'flex', alignItems: 'center', gap: '0.75rem', color: 'var(--text-secondary)' }}>
-              <input type="checkbox" />
+            <label className="checkbox-label">
+              <input 
+                type="checkbox" 
+                checked={twoFactor} 
+                onChange={(e) => setTwoFactor(e.target.checked)} 
+              />
               Enable Two-Factor Authentication
             </label>
           </div>
