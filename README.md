@@ -1,59 +1,16 @@
-# Omak Computers - Order and Billing Management System
+# React + Vite
 
-A modern, responsive, and intuitive web application designed for managing computer hardware inventory, orders, customers, and billing processes. Built with React and Vite.
+This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
 
-## 🚀 Features
+Currently, two official plugins are available:
 
-- **📊 Dashboard Overview**: High-level store overview with real-time stats (revenue, orders, pending fulfillments, inventory alerts) and recent transactions.
-- **📦 Product Management**: Comprehensive inventory tracking with product details, stock levels, categories, and pricing.
-- **🛒 Orders Management**: Track customer orders, processing statuses, and fulfillment tracking.
-- **👥 Customers Management**: Maintain a database of customers, their contact information, and purchase history.
-- **🧾 Invoices Management**: Generate and manage billing invoices for customer orders.
-- **⚙️ Settings**: System configuration and preferences.
+- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Oxc](https://oxc.rs)
+- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/)
 
-## 💻 Tech Stack
+## React Compiler
 
-- **Frontend Framework**: [React 19](https://react.dev/)
-- **Build Tool**: [Vite 8](https://vitejs.dev/)
-- **Styling**: Vanilla CSS with modern CSS variables, responsive layouts, and Flexbox/CSS Grid.
-- **Icons**: [Lucide React](https://lucide.dev/) for clean and consistent UI iconography.
-- **Charts/Data Visualization**: [Recharts](https://recharts.org/) for rendering dashboard analytics.
+The React Compiler is not enabled on this template because of its impact on dev & build performances. To add it, see [this documentation](https://react.dev/learn/react-compiler/installation).
 
-## 🛠️ Installation & Setup
+## Expanding the ESLint configuration
 
-1. **Clone the repository** (or download the source code).
-2. **Navigate to the project directory**:
-   ```bash
-   cd Order_and_Billing
-   ```
-3. **Install dependencies**:
-   ```bash
-   npm install
-   ```
-4. **Start the development server**:
-   ```bash
-   npm run dev
-   ```
-5. **Open in Browser**: The application will typically be available at `http://localhost:5173`.
-
-## 📁 Project Structure
-
-```
-src/
-├── assets/         # Static assets like images and icons
-├── components/     # Reusable UI components (Navbar, Footer, etc.)
-├── data/           # Mock data files for development and testing
-├── pages/          # Main application views (Dashboard, Products, Orders, etc.)
-├── App.jsx         # Main application layout and routing logic
-├── main.jsx        # React application entry point
-└── index.css       # Global stylesheet and CSS variables
-```
-
-## 🎨 UI/UX Highlights
-
-- **Glassmorphism Elements**: Subtle glass effects on borders and cards for a premium look.
-- **Dynamic Theming**: Easily customizable color palettes using CSS variables (primary, secondary, success, warning, danger).
-- **Responsive Design**: Designed to scale and display correctly across different screen sizes.
-
----
-*Developed for Management Information System Project.*
+If you are developing a production application, we recommend using TypeScript with type-aware lint rules enabled. Check out the [TS template](https://github.com/vitejs/vite/tree/main/packages/create-vite/template-react-ts) for information on how to integrate TypeScript and [`typescript-eslint`](https://typescript-eslint.io) in your project.
